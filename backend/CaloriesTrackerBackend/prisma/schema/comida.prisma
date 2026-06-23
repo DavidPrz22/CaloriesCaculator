@@ -1,0 +1,26 @@
+model Categoria {
+    id          Int       @id @default(autoincrement())
+    nameES      String
+    nameEN      String
+    comidas     Comida[]
+}
+
+model Medida {
+    id          Int       @id @default(autoincrement())
+    nameES      String
+    nameEN      String
+    abreviation String
+    comidas     Comida[]
+}
+
+model Comida {
+    id          Int       @id @default(autoincrement())
+    FDCID       Int
+    nameES      String
+    nameEN      String
+    categoriaId Int
+    categoria   Categoria @relation(fields: [categoriaId], references: [id])
+    medidaId    Int
+    medida      Medida    @relation(fields: [medidaId], references: [id])
+    detalles    DataConsumoDetalle[]
+}

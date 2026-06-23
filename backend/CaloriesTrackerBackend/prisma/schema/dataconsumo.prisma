@@ -1,0 +1,9 @@
+model DataConsumo {
+    id                      Int @id @default(autoincrement())
+    calorias_consumidas     Int
+    timestamp               DateTime @default(now())
+    user                    User @relation(fields: [userId], references: [id])
+    userId                  Int
+    meta_diaria             Int
+    detalles                DataConsumoDetalle[]
+}

@@ -1,0 +1,9 @@
+model DataConsumoDetalle {
+    id                      Int @id @default(autoincrement())
+    comida                  Comida @relation(fields: [comidaId], references: [id])
+    comidaId                Int
+    cantidad_consumida      Int
+    calorias_consumida      Int
+    dataConsumo             DataConsumo @relation(fields: [dataConsumoId], references: [id])
+    dataConsumoId           Int
+}
