@@ -7,6 +7,8 @@ loadEnvFile();
 
 const foodauth = process.env.USDAKEY;
 
+const MAINFOODENDPOINTS = ['/v1/food/{fdcId}', "/v1/foods", ""]
+
 const foodinfoClient = axios.create({
     baseURL: FOODENDPOINT,
     headers: {

@@ -12,6 +12,8 @@
   "dependencies": {
     "@base-ui/react": "^1.6.0",
     "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource/fraunces": "^5.2.9",
+    "@fontsource/inter": "^5.2.8",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/react-query": "^5.101.0",
     "axios": "^1.18.0",
@@ -27,6 +29,7 @@
     "react": "^19.2.6",
     "react-day-picker": "^10.0.1",
     "react-dom": "^19.2.6",
+    "react-hook-form": "^7.80.0",
     "react-resizable-panels": "^4.11.2",
     "react-router": "^8.0.1",
     "recharts": "3.8.0",

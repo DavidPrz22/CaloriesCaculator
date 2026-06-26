@@ -22,10 +22,13 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src", 
+    "src/**/*", 
+    "src/globals.d.ts"
+  ]
 }

@@ -9,15 +9,19 @@ model Medida {
     id          Int       @id @default(autoincrement())
     nameES      String
     nameEN      String
-    abreviation String
+    abreviation String    @default("")
     comidas     Comida[]
 }
 
 model Comida {
     id          Int       @id @default(autoincrement())
-    FDCID       Int
+    FDCID       Int       @unique
     nameES      String
     nameEN      String
+    calories    Float?
+    protein     Float?
+    carbs       Float?
+    fat         Float?
     categoriaId Int
     categoria   Categoria @relation(fields: [categoriaId], references: [id])
     medidaId    Int
