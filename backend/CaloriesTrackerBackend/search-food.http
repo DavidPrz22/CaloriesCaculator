@@ -1,0 +1,21 @@
+### 1. Basic Search with only query and language (English)
+GET http://localhost:3000/api/calories/search-food?query=apple&lang=EN&categoriaId=1 
+###
+
+### 2. Basic Search with only query and language (Spanish)
+GET http://localhost:3000/api/calories/search-food?query=manzana&lang=ES
+
+###
+
+### 3. Search with category filter
+GET http://localhost:3000/api/calories/search-food?query=apple&lang=EN&categoriaId=1
+
+###
+
+### 4. Invalid Search (Query too short - should return 400 Bad Request or 500)
+GET http://localhost:3000/api/calories/search-food?query=a&lang=EN
+
+###
+
+### 5. Missing required params (Should return 400 ZodError)
+GET http://localhost:3000/api/calories/search-food?query=apple

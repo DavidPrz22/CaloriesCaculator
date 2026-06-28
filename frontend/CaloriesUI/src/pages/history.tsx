@@ -3,12 +3,12 @@ import { History as HistoryIcon, Flame } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { comidas, getMedida, nameOf } from "@/lib/foods";
 import { useI18n } from "@/lib/i18n";
-import { useStore } from "@/lib/store";
+import { useHistoryStore } from "@/ZustandStores";
 
 
 export default function HistoryPage() {
   const { t, lang } = useI18n();
-  const { history } = useStore();
+  const history = useHistoryStore((s) => s.history);
 
   return (
     <AppShell>

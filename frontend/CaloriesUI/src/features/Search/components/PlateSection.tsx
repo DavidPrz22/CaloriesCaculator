@@ -1,6 +1,6 @@
 import { Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store";
+import { usePlateStore } from "@/ZustandStores";
 import { useI18n } from "@/lib/i18n";
 import { PlateHeader } from "./PlateHeader";
 import { PlateEmptyState } from "./PlateEmptyState";
@@ -12,19 +12,20 @@ interface PlateSectionProps {
 
 export function PlateSection({ onCalculate }: PlateSectionProps) {
   const { t } = useI18n();
-  const { plate } = useStore();
+  const plate = usePlateStore((s) => s.plate);
+  const entries = Object.entries(plate);
 
   return (
     <section className="mt-10">
       <PlateHeader />
 
       <div className="rounded-2xl border border-border bg-card/80 p-1 shadow-sm backdrop-blur-sm">
-        {plate.length === 0 ? (
+        {entries.length === 0 ? (
           <PlateEmptyState />
         ) : (
           <ul className="space-y-2 p-1">
-            {plate.map((item, idx) => (
-              <PlateItemCard key={item.comidaId} item={item} idx={idx} />
+            {entries.map(([fdcId, entry], ) => (
+              <PlateItemCard key={fdcId} fdcId={Number(fdcId)} entry={entry} />
             ))}
           </ul>
         )}

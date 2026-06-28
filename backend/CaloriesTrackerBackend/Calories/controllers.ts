@@ -11,7 +11,7 @@ export class CaloriesFoodController {
         return await prisma.medida.findMany()
     }
 
-    static async searchFoodbyQuery(query: string, categoriaId: number, lang: lang) {
+    static async searchFoodbyQuery(query: string, lang: lang, categoriaId: number) {
         const userinput = query.trim();
         if (userinput.length < 2) {
             throw new Error("Invalid query length");
@@ -23,11 +23,41 @@ export class CaloriesFoodController {
             where: {
                 [searchColumn]: {
                     contains: userinput,
-                    mode: 'insensitive'
+                    mode: 'insensitive',
                 },
-                categoriaId: categoriaId,
+                ...(
+                    categoriaId !== 1 && { 
+                        categoriaId: categoriaId,
+                    }),
+                },
+            select: {
+                id: true,
+                FDCID: true,
+                nameES: true,
+                nameEN: true,
+                calories: true,
+                protein: true,
+                carbs: true,
+                fat: true,
+                categoria: {
+                    select: {
+                        id: true,
+                        nameES: true,
+                        nameEN: true
+                    }
+                },
+                // Explicitly excluding medidaId by NOT listing it
+                medida: {
+                    select: {
+                        id: true,
+                        nameES: true,
+                        nameEN: true,
+                        abreviation: true
+                    }
+                }
             }
         });
+
         return cachedData;
     }
 }

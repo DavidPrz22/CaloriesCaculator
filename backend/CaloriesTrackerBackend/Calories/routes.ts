@@ -9,20 +9,14 @@ export const CaloriesRouter: Router = Router();
 export function createCaloriesRouter(): Router {
     const router = Router();
 
-    const timeLog = (req, res, next) => {
-        console.log('Time: ', Date.now());
-        next();
-    };
-    router.use(timeLog);
-
     router.get("/categories", async (req, res) => {
         const results = await CaloriesFoodController.retrieveFoodsCategories()
-        res.json({"categories": results, "status": res.status(200)});
+        res.status(200).json({"categories": results});
     })
 
     router.get("/units", async (req, res) => {
         const results = await CaloriesFoodController.retrieveFoodsMeasures()
-        res.json({"categories": results, "status": res.status(200)});
+        res.status(200).json({"units": results});
     })
 
 
@@ -34,11 +28,11 @@ export function createCaloriesRouter(): Router {
             // 2. Pass perfectly typed data to the controller
             const results = await CaloriesFoodController.searchFoodbyQuery(
                 validatedQuery.query, 
+                validatedQuery.lang,
                 validatedQuery.categoriaId, 
-                validatedQuery.lang
             );
 
-            res.json({"foods": results, "status": res.status(200)});
+            res.status(200).json({"foods": results});
 
         } catch (error) {
             if (error instanceof ZodError) {

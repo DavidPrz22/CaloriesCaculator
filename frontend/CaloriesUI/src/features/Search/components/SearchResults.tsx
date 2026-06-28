@@ -1,13 +1,14 @@
 import { useI18n } from "@/lib/i18n";
-import { type Comida } from "@/lib/foods";
+import type { Comida, Medida } from "../types/types";
 import { SearchResultCard } from "./SearchResultCard";
 
 interface SearchResultsProps {
   query: string;
   results: Comida[];
+  units: Medida[];
 }
 
-export function SearchResults({ query, results }: SearchResultsProps) {
+export function SearchResults({ query, results, units }: SearchResultsProps) {
   const { t } = useI18n();
 
   if (!query.trim()) return null;
@@ -18,9 +19,10 @@ export function SearchResults({ query, results }: SearchResultsProps) {
         <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t("noResults")}</p>
       ) : (
         <ul className="space-y-1.5 p-1">
-          {results.map((c) => (
-            <SearchResultCard key={c.id} c={c} />
-          ))}
+          {results.map((c) => {
+            const medida = units.find((m) => m.id === c.medidaId);
+            return <SearchResultCard key={c.id} comida={c} medida={medida} />;
+          })}
         </ul>
       )}
     </div>

@@ -1,0 +1,47 @@
+import { z } from "zod";
+
+export const CategoriaSchema = z.object({
+  id: z.number(),
+  nameES: z.string(),
+  nameEN: z.string(),
+});
+
+export const MedidaSchema = z.object({
+  id: z.number(),
+  nameES: z.string(),
+  nameEN: z.string(),
+  abreviation: z.string(),
+});
+
+export const ComidaSchema = z.object({
+  id: z.number(),
+  FDCID: z.number(),
+  nameES: z.string(),
+  nameEN: z.string(),
+  categoria: CategoriaSchema,
+  medida: MedidaSchema,
+  calories: z.number(),
+  protein: z.number(),
+  carbs: z.number(),
+  fat: z.number(),
+});
+
+export const CategoriesResponseSchema = z.object({
+  categories: z.array(CategoriaSchema),
+});
+
+export const UnitsResponseSchema = z.object({
+  units: z.array(MedidaSchema),
+});
+
+export const SearchFoodResponseSchema = z.object({
+  foods: z.array(ComidaSchema),
+});
+
+export const SearchFoodQuerySchema = z.object({
+  query: z.string().min(2, "Query must be at least 2 characters"),
+  lang: z.enum(["EN", "ES"]),
+  categoriaId: z.coerce.number(),
+});
+
+export type SearchFoodQuery = z.infer<typeof SearchFoodQuerySchema>;

@@ -14,31 +14,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { comidas, getMedida, nameOf } from "@/lib/foods";
 import { useI18n } from "@/lib/i18n";
-import { useStore, type ConsumoDetalle } from "@/lib/store";
+import { usePlateStore, useHistoryStore, type ConsumoDetalle } from "@/ZustandStores";
 
 
 export default function Results() {
   const { t, lang } = useI18n();
-  const { plate, saveRecord, clearPlate } = useStore();
+  const plate = usePlateStore((s) => s.plate);
+  const clearPlate = usePlateStore((s) => s.clearPlate);
+  const saveRecord = useHistoryStore((s) => s.saveRecord);
   const navigate = useNavigate();
 
+  const plateEntries = Object.entries(plate);
+
   const rows = useMemo(() => {
-    return plate
-      .map((item) => {
-        const c = comidas.find((x) => x.id === item.comidaId);
-        if (!c) return null;
-        const m = getMedida(c.medidaId);
-        const amount = item.amount;
-        const calories = Math.round(c.caloriesPerUnit * amount);
-        const protein = Math.round(c.proteinPerUnit * amount * 10) / 10;
-        const carbs = Math.round(c.carbsPerUnit * amount * 10) / 10;
-        const fat = Math.round(c.fatPerUnit * amount * 10) / 10;
-        return { comida: c, medida: m, amount, calories, protein, carbs, fat };
+    return plateEntries
+      .map(([fdcIdStr, entry]) => {
+        const fdcId = Number(fdcIdStr);
+        const amount = entry.amount;
+        const calories = Math.round(entry.calories * amount);
+        const protein = Math.round(entry.protein * amount * 10) / 10;
+        const carbs = Math.round(entry.carbs * amount * 10) / 10;
+        const fat = Math.round(entry.fat * amount * 10) / 10;
+        return { fdcId, amount, calories, protein, carbs, fat, entry };
       })
       .filter((r): r is NonNullable<typeof r> => r !== null);
-  }, [plate]);
+  }, [plateEntries]);
 
   const totalCalories = rows.reduce((sum, r) => sum + r.calories, 0);
   const totalProtein = Math.round(rows.reduce((sum, r) => sum + r.protein, 0) * 10) / 10;
@@ -48,7 +49,7 @@ export default function Results() {
   const onSave = () => {
     if (rows.length === 0) return;
     const detalles: ConsumoDetalle[] = rows.map((r) => ({
-      comidaId: r.comida.id,
+      comidaId: r.fdcId,
       cantidad_consumida: r.amount,
       calorias_consumida: r.calories,
       protein_consumida: r.protein,
@@ -102,10 +103,12 @@ export default function Results() {
               </TableRow>
             ) : (
               rows.map((r) => (
-                <TableRow key={r.comida.id}>
-                  <TableCell className="font-medium">{nameOf(r.comida, lang)}</TableCell>
+                <TableRow key={r.fdcId}>
+                  <TableCell className="font-medium">
+                    {lang === "es" ? r.entry.nameES : r.entry.nameEN}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {r.amount} {r.medida.abreviation}
+                    {r.amount} {r.entry.medidaAbreviation}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{r.protein} g</TableCell>
                   <TableCell className="text-right tabular-nums">{r.carbs} g</TableCell>

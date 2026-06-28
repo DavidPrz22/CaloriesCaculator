@@ -1,41 +1,50 @@
 import { Check, Plus, Utensils } from "lucide-react";
-import { getMedida, nameOf, type Comida } from "@/lib/foods";
-import { categoryIcons, categoryAccent } from "../types/types";
+import type { Comida, Medida } from "../types/types";
+import { categoryIcons, categoryAccent } from "../data/constants";
 import { useI18n } from "@/lib/i18n";
-import { useStore } from "@/lib/store";
+import { usePlateStore } from "@/ZustandStores";
 
 interface SearchResultCardProps {
-  c: Comida;
+  comida: Comida;
+  medida?: Medida;
 }
 
-export function SearchResultCard({ c }: SearchResultCardProps) {
+export function SearchResultCard({ comida, medida }: SearchResultCardProps) {
   const { lang } = useI18n();
-  const { plate, addToPlate } = useStore();
+  const plate = usePlateStore((s) => s.plate);
+  const addToPlate = usePlateStore((s) => s.addToPlate);
 
-  const m = getMedida(c.medidaId);
-  const inPlate = plate.some((p) => p.comidaId === c.id);
-  const accent = categoryAccent[c.categoriaId] ?? "var(--primary-soft)";
+  const inPlate = Object.prototype.hasOwnProperty.call(plate, comida.FDCID);
+  const accent = categoryAccent[comida.categoria.id] ?? "var(--primary-soft)";
 
   return (
     <li>
       <button
         type="button"
-        onClick={() => !inPlate && addToPlate(c.id)}
+        onClick={() => !inPlate && addToPlate(comida)}
         disabled={inPlate}
-        className="group flex w-full items-center gap-3 rounded-xl border border-transparent bg-card px-3 py-2.5 text-left shadow-sm transition-all hover:border-primary-soft/40 hover:shadow-md hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm"
+        className="group flex w-full items-center gap-3 rounded-xl border border-transparent bg-card px-3 py-2.5 text-left shadow-sm transition-all hover:border-primary-soft/40 hover:shadow-md hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm cursor-pointer"
       >
         <span
           className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-primary-foreground shadow-sm transition group-hover:scale-105"
           style={{ background: accent }}
         >
-          {categoryIcons[c.categoriaId] ?? <Utensils className="h-4 w-4" />}
+          {categoryIcons[comida.categoria.id] ?? <Utensils className="h-4 w-4" />}
         </span>
         <span className="min-w-0 flex-1 truncate">
-          <span className="block truncate font-medium text-foreground">
-            {nameOf(c, lang)}
+          <span className="flex items-center gap-2 truncate">
+            <span className="block truncate font-medium text-foreground">
+              {lang === "es" ? comida.nameES : comida.nameEN}
+            </span>
+            <span
+              className="inline-flex shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-semibold tracking-[0.06rem]"
+              style={{ backgroundColor: `${accent}25`, color: accent }}
+            >
+              {lang === "es" ? comida.categoria?.nameES : comida.categoria?.nameEN}
+            </span>
           </span>
           <span className="block text-xs text-muted-foreground">
-            {m.abreviation}
+            {medida?.abreviation ?? ""}
           </span>
         </span>
         {inPlate ? (

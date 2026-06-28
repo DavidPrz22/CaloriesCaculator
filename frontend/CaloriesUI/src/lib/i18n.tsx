@@ -30,9 +30,9 @@ const dict = {
   record:         { en: "Save this entry", es: "Guardar este registro" },
   saved:          { en: "Saved to history", es: "Guardado en el historial" },
   backHome:       { en: "Back to search", es: "Volver a buscar" },
-  category:       { en: "Category", es: "Categoría" },
+  category:       { en: "Select Category", es: "Selecciona una Categoría" },
   measure:        { en: "Measure", es: "Medida" },
-  perUnit:        { en: "kcal / unit", es: "kcal / unidad" },
+  calPerUnit:     { en: "kcal / unit", es: "kcal / unidad" },
   noHistory:      { en: "No recordings yet. Calculate a meal and save it.", es: "Aún no hay registros. Calcula una comida y guárdala." },
   date:           { en: "Date", es: "Fecha" },
   items:          { en: "Items", es: "Elementos" },
@@ -43,6 +43,7 @@ const dict = {
   protein:        { en: "Protein", es: "Proteína" },
   carbs:          { en: "Carbs", es: "Carbohidratos" },
   fat:            { en: "Fat", es: "Grasa" },
+
 } satisfies Dict;
 
 export type DictKey = keyof typeof dict;
