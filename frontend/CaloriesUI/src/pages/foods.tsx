@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { categorias, comidas, getCategoria, getMedida, nameOf } from "@/lib/foods";
+import { nameOf, comidas, categorias, getCategoria, getMedida } from "@/lib/foods";
 import { useI18n } from "@/lib/i18n";
 
 

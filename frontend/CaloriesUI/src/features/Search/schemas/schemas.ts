@@ -45,3 +45,35 @@ export const SearchFoodQuerySchema = z.object({
 });
 
 export type SearchFoodQuery = z.infer<typeof SearchFoodQuerySchema>;
+
+export const FoodArgSchema = z.object({
+  fdcId: z.number(),
+  amount: z.number(),
+});
+
+export const NutritionSchema = z.object({
+  calories: z.number(),
+  protein: z.number(),
+  carbs: z.number(),
+  fat: z.number(),
+});
+
+export const CalculatedItemSchema = z.object({
+  fdcId: z.number(),
+  names: z.object({
+    en: z.string(),
+    es: z.string(),
+  }),
+  nutrition: NutritionSchema,
+  amount: z.number(),
+});
+
+export const CalculateNutrientsResponseSchema = z.object({
+  items: z.array(CalculatedItemSchema),
+  totals: NutritionSchema,
+});
+
+export type FoodArg = z.infer<typeof FoodArgSchema>;
+export type Nutrition = z.infer<typeof NutritionSchema>;
+export type CalculatedItem = z.infer<typeof CalculatedItemSchema>;
+export type CalculateNutrientsResponse = z.infer<typeof CalculateNutrientsResponseSchema>;

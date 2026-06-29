@@ -20,7 +20,7 @@ export function SearchResults({ query, results, units }: SearchResultsProps) {
       ) : (
         <ul className="space-y-1.5 p-1">
           {results.map((c) => {
-            const medida = units.find((m) => m.id === c.medidaId);
+            const medida = units.find((m) => m.id === c.medida.id);
             return <SearchResultCard key={c.id} comida={c} medida={medida} />;
           })}
         </ul>

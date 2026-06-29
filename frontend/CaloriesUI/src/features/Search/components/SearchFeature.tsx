@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { usePlateStore } from "@/ZustandStores";
 import { useI18n } from "@/lib/i18n";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchFood, useUnits } from "../hooks/queries/queries";
+import { useCalculateNutrition } from "../hooks/mutations/mutation";
 import { toBackendLang } from "../types/types";
 
 import { SearchHeader } from "./SearchHeader";
@@ -16,13 +16,13 @@ export function SearchFeature() {
   const { t, lang } = useI18n();
   const plate = usePlateStore((s) => s.plate);
   const plateEntries = Object.values(plate);
-  const navigate = useNavigate();
+  const calculateNutrition = useCalculateNutrition();
 
   const [query, setQuery] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("all");
+  const [categoryId, setCategoryId] = useState<string>("1");
 
   const debouncedQuery = useDebounce(query, 300);
-  const categoriaId = categoryId === "all" ? 1 : Number(categoryId);
+  const categoriaId = Number(categoryId);
 
   const { data: results = [] } = useSearchFood(
     debouncedQuery,
@@ -42,7 +42,7 @@ export function SearchFeature() {
       toast.error(t("invalidAmount"));
       return;
     }
-    navigate("/results");
+    calculateNutrition.mutate();
   };
 
   return (

@@ -15,11 +15,10 @@ export function PlateItemCard({ fdcId, entry }: PlateItemCardProps) {
   const { t, lang } = useI18n();
   const setAmount = usePlateStore((s) => s.setAmount);
   const removeFromPlate = usePlateStore((s) => s.removeFromPlate);
-
+  
   const name = lang === "es" ? entry.nameES : entry.nameEN;
   const category = lang === "es" ? entry.categoria.nameES : entry.categoria.nameEN;
   const accent = categoryAccent[entry.categoria.id]
-
 
   return (
     <li className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-sm">

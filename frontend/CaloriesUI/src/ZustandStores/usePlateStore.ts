@@ -1,17 +1,22 @@
 import { create } from "zustand";
 import type { Comida, PlateEntry } from "../features/Search/types/types";
+import type { CalculateNutrientsResponse } from "../features/Search/schemas/schemas";
 
 
 interface PlateStore {
   plate: Record<number, PlateEntry>;
+  nutritionResult: CalculateNutrientsResponse | null;
   addToPlate: (comida: Comida) => void;
   setAmount: (fdcId: number, amount: number) => void;
   removeFromPlate: (fdcId: number) => void;
+  setNutritionResult: (result: CalculateNutrientsResponse) => void;
+  clearNutritionResult: () => void;
   clearPlate: () => void;
 }
 
 export const usePlateStore = create<PlateStore>()((set) => ({
   plate: {},
+  nutritionResult: null,
   addToPlate: (comida) =>
     set((state) =>
       state.plate[comida.FDCID]
@@ -46,5 +51,7 @@ export const usePlateStore = create<PlateStore>()((set) => ({
       delete newplate[fdcId];
       return { plate: newplate };
     }),
-  clearPlate: () => set({ plate: {} }),
+  setNutritionResult: (result) => set({ nutritionResult: result }),
+  clearNutritionResult: () => set({ nutritionResult: null }),
+  clearPlate: () => set({ plate: {}, nutritionResult: null }),
 }));

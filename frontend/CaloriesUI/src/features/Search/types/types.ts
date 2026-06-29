@@ -37,3 +37,15 @@ export type PlateEntry = Pick<Comida, "nameEN" | "nameES" | "calories" | "protei
   amount: number;
   medidaAbreviation: string;
 };
+
+
+export type NutrionData = {
+  fdcId: number,
+  nameES: string,
+  nameEN: string,
+  calories: string,
+  protein: string,
+  carbs: string,
+  fat: string
+}
+

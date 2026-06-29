@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, BookmarkPlus, Flame } from "lucide-react";
-import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
@@ -20,47 +19,29 @@ import { usePlateStore, useHistoryStore, type ConsumoDetalle } from "@/ZustandSt
 
 export default function Results() {
   const { t, lang } = useI18n();
-  const plate = usePlateStore((s) => s.plate);
+  const nutritionResult = usePlateStore((s) => s.nutritionResult);
   const clearPlate = usePlateStore((s) => s.clearPlate);
   const saveRecord = useHistoryStore((s) => s.saveRecord);
   const navigate = useNavigate();
 
-  const plateEntries = Object.entries(plate);
-
-  const rows = useMemo(() => {
-    return plateEntries
-      .map(([fdcIdStr, entry]) => {
-        const fdcId = Number(fdcIdStr);
-        const amount = entry.amount;
-        const calories = Math.round(entry.calories * amount);
-        const protein = Math.round(entry.protein * amount * 10) / 10;
-        const carbs = Math.round(entry.carbs * amount * 10) / 10;
-        const fat = Math.round(entry.fat * amount * 10) / 10;
-        return { fdcId, amount, calories, protein, carbs, fat, entry };
-      })
-      .filter((r): r is NonNullable<typeof r> => r !== null);
-  }, [plateEntries]);
-
-  const totalCalories = rows.reduce((sum, r) => sum + r.calories, 0);
-  const totalProtein = Math.round(rows.reduce((sum, r) => sum + r.protein, 0) * 10) / 10;
-  const totalCarbs = Math.round(rows.reduce((sum, r) => sum + r.carbs, 0) * 10) / 10;
-  const totalFat = Math.round(rows.reduce((sum, r) => sum + r.fat, 0) * 10) / 10;
+  const items = nutritionResult?.items || [];
+  const totals = nutritionResult?.totals || { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
   const onSave = () => {
-    if (rows.length === 0) return;
-    const detalles: ConsumoDetalle[] = rows.map((r) => ({
+    if (items.length === 0) return;
+    const detalles: ConsumoDetalle[] = items.map((r) => ({
       comidaId: r.fdcId,
       cantidad_consumida: r.amount,
-      calorias_consumida: r.calories,
-      protein_consumida: r.protein,
-      carbs_consumida: r.carbs,
-      fat_consumida: r.fat,
+      calorias_consumida: r.nutrition.calories,
+      protein_consumida: r.nutrition.protein,
+      carbs_consumida: r.nutrition.carbs,
+      fat_consumida: r.nutrition.fat,
     }));
     saveRecord({
-      calorias_consumidas: totalCalories,
-      protein_consumida: totalProtein,
-      carbs_consumida: totalCarbs,
-      fat_consumida: totalFat,
+      calorias_consumidas: totals.calories,
+      protein_consumida: totals.protein,
+      carbs_consumida: totals.carbs,
+      fat_consumida: totals.fat,
       detalles,
     });
     clearPlate();
@@ -80,7 +61,7 @@ export default function Results() {
       </div>
 
       <h1 className="font-display text-4xl font-semibold">{t("results")}</h1>
-      <p className="mt-1 text-muted-foreground">{rows.length} {t("items")}</p>
+      <p className="mt-1 text-muted-foreground">{items.length} {t("items")}</p>
 
       <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <Table>
@@ -95,44 +76,44 @@ export default function Results() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
                   {t("emptyPlate")}
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((r) => (
+              items.map((r) => (
                 <TableRow key={r.fdcId}>
                   <TableCell className="font-medium">
-                    {lang === "es" ? r.entry.nameES : r.entry.nameEN}
+                    {lang === "es" ? r.names.es : r.names.en}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {r.amount} {r.entry.medidaAbreviation}
+                    {r.amount}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">{r.protein} g</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.carbs} g</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.fat} g</TableCell>
+                  <TableCell className="text-right tabular-nums">{Math.round(r.nutrition.protein * 10) / 10} g</TableCell>
+                  <TableCell className="text-right tabular-nums">{Math.round(r.nutrition.carbs * 10) / 10} g</TableCell>
+                  <TableCell className="text-right tabular-nums">{Math.round(r.nutrition.fat * 10) / 10} g</TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {r.calories} <span className="text-xs text-muted-foreground">{t("kcal")}</span>
+                    {Math.round(r.nutrition.calories)} <span className="text-xs text-muted-foreground">{t("kcal")}</span>
                   </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
-          {rows.length > 0 && (
+          {items.length > 0 && (
             <TableFooter>
               <TableRow className="bg-primary/5 hover:bg-primary/5">
                 <TableCell colSpan={2} className="font-display text-base font-semibold">
                   {t("total")}
                 </TableCell>
-                <TableCell className="text-right tabular-nums font-medium">{totalProtein} g</TableCell>
-                <TableCell className="text-right tabular-nums font-medium">{totalCarbs} g</TableCell>
-                <TableCell className="text-right tabular-nums font-medium">{totalFat} g</TableCell>
+                <TableCell className="text-right tabular-nums font-medium">{Math.round(totals.protein * 10) / 10} g</TableCell>
+                <TableCell className="text-right tabular-nums font-medium">{Math.round(totals.carbs * 10) / 10} g</TableCell>
+                <TableCell className="text-right tabular-nums font-medium">{Math.round(totals.fat * 10) / 10} g</TableCell>
                 <TableCell className="text-right">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 font-display text-base font-semibold text-primary-foreground">
                     <Flame className="h-4 w-4" />
-                    {totalCalories} {t("kcal")}
+                    {Math.round(totals.calories)} {t("kcal")}
                   </span>
                 </TableCell>
               </TableRow>
@@ -145,7 +126,7 @@ export default function Results() {
         <Button
           size="lg"
           onClick={onSave}
-          disabled={rows.length === 0}
+          disabled={items.length === 0}
           className="h-12 rounded-full px-7 text-base shadow-md gradient-leaf"
         >
           <BookmarkPlus className="mr-2 h-5 w-5" />
