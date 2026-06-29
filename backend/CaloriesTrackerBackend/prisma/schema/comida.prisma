@@ -1,30 +1,30 @@
 model Categoria {
-    id          Int       @id @default(autoincrement())
-    nameES      String
-    nameEN      String
-    comidas     Comida[]
+  id      Int      @id @default(autoincrement())
+  nameES  String
+  nameEN  String
+  comidas Comida[]
 }
 
 model Medida {
-    id          Int       @id @default(autoincrement())
-    nameES      String
-    nameEN      String
-    abreviation String    @default("")
-    comidas     Comida[]
+  id          Int      @id @default(autoincrement())
+  nameES      String
+  nameEN      String
+  abreviation String   @default("")
+  comidas     Comida[]
 }
 
 model Comida {
-    id          Int       @id @default(autoincrement())
-    FDCID       Int       @unique
-    nameES      String
-    nameEN      String
-    calories    Float?
-    protein     Float?
-    carbs       Float?
-    fat         Float?
-    categoriaId Int
-    categoria   Categoria @relation(fields: [categoriaId], references: [id])
-    medidaId    Int
-    medida      Medida    @relation(fields: [medidaId], references: [id])
-    detalles    DataConsumoDetalle[]
+  id          Int                  @id @default(autoincrement())
+  FDCID       Int                  @unique
+  nameES      String
+  nameEN      String
+  categoriaId Int
+  medidaId    Int
+  calories    Float?
+  carbs       Float?
+  fat         Float?
+  protein     Float?
+  categoria   Categoria            @relation(fields: [categoriaId], references: [id])
+  medida      Medida               @relation(fields: [medidaId], references: [id])
+  detalles    DataConsumoDetalle[]
 }

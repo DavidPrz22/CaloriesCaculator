@@ -17,6 +17,7 @@ export const calculateNutrientsArgs = z.array(foodArgs);
 export type SearchFoodQuery = z.infer<typeof SearchFoodQuerySchema>;
 export type CalculateNutrientsInput = z.infer<typeof calculateNutrientsArgs>;
 
+
 export const NutritionSchema = z.object({
     calories: z.number(),
     protein: z.number(),
@@ -42,3 +43,5 @@ export const CalculateNutrientsResponseSchema = z.object({
 export type Nutrition = z.infer<typeof NutritionSchema>;
 export type CalculatedItem = z.infer<typeof CalculatedItemSchema>;
 export type CalculateNutrientsResponse = z.infer<typeof CalculateNutrientsResponseSchema>;
+
+

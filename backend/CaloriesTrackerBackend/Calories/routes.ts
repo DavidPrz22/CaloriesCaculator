@@ -57,5 +57,16 @@ export function createCaloriesRouter(): Router {
         }
     });
 
+    router.post('/save-consumption', async (req, res) => {
+        try {
+            
+        } catch (error) {
+            if (error instanceof ZodError) {
+                res.status(400).json({ error: error });
+            } else {
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        }
+    })
     return router;
 }
