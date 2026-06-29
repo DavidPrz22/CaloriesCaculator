@@ -1,7 +1,7 @@
 import { fetchApi } from "../utils/api";
-import { CategoriesResponseSchema, UnitsResponseSchema, SearchFoodResponseSchema, CalculateNutrientsResponseSchema, FoodArgSchema } from "../schemas/schemas";
+import { CategoriesResponseSchema, UnitsResponseSchema, SearchFoodResponseSchema, CalculateNutrientsResponseSchema, FoodArgSchema, SaveConsumptionRequestSchema } from "../schemas/schemas";
 import type { Categoria, Medida, Comida, BackendLang } from "../types/types";
-import type { FoodArg, CalculateNutrientsResponse } from "../schemas/schemas";
+import type { FoodArg, CalculateNutrientsResponse, SaveConsumptionRequest } from "../schemas/schemas";
 
 export async function fetchCategories(): Promise<Categoria[]> {
   try {
@@ -54,6 +54,19 @@ export async function calculateNutrition(items: FoodArg[]): Promise<CalculateNut
   } catch (error) {
     console.error("Error calculating nutrition:", error);
     throw new Error(error instanceof Error ? error.message : "Failed to calculate nutrition", { cause: error });
+  }
+}
+
+export async function saveConsumption(request: SaveConsumptionRequest): Promise<void> {
+  try {
+    const validatedRequest = SaveConsumptionRequestSchema.parse(request);
+    await fetchApi<void>("/save-consumption", {
+      method: "POST",
+      body: JSON.stringify(validatedRequest),
+    });
+  } catch (error) {
+    console.error("Error saving consumption:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to save consumption", { cause: error });
   }
 }
 

@@ -4,7 +4,8 @@ import {
     type CalculateNutrientsInput, 
     type CalculatedItem, 
     type CalculateNutrientsResponse,
-    type Nutrition 
+    type Nutrition,
+    type SaveConsumptionInput
 } from './zod';
 import { CaloriesService } from './services/services';
 
@@ -109,5 +110,48 @@ export class CaloriesFoodController {
         const totals = CaloriesService.calculateTotalNutrition(nutritionList);
 
         return { items, totals };
+    }
+
+    static async saveConsumption(input: SaveConsumptionInput) {
+        const userId = 1;
+
+        const fdcIds = input.detalles.map(d => d.comidaId);
+        const comidas = await prisma.comida.findMany({
+            where: { FDCID: { in: fdcIds } },
+            select: { id: true, FDCID: true }
+        });
+
+        const comidaIdMap = new Map(comidas.map(c => [c.FDCID, c.id]));
+
+        const dataConsumo = await prisma.dataConsumo.create({
+            data: {
+                calorias_consumidas: input.calorias_consumidas,
+                proteinas_consumidas: input.proteinas_consumidas,
+                carbohidratos_consumidos: input.carbohidratos_consumidos,
+                grasas_consumidas: input.grasas_consumidas,
+                userId,
+                detalles: {
+                    create: input.detalles.map(detail => {
+                        const internalComidaId = comidaIdMap.get(detail.comidaId);
+                        if (!internalComidaId) {
+                            throw new Error(`Comida with FDCID ${detail.comidaId} not found`);
+                        }
+                        return {
+                            comidaId: internalComidaId,
+                            cantidad_consumida: detail.cantidad_consumida,
+                            calorias_consumida: detail.calorias_consumida,
+                            proteinas_consumidas: detail.proteinas_consumida,
+                            carbohidratos_consumidos: detail.carbohidratos_consumida,
+                            grasas_consumidas: detail.grasas_consumida,
+                        };
+                    })
+                }
+            },
+            include: {
+                detalles: true
+            }
+        });
+
+        return dataConsumo;
     }
 }

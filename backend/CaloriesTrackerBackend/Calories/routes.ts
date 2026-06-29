@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { CaloriesFoodController } from "./controllers";
-import { SearchFoodQuerySchema, calculateNutrientsArgs } from './zod'
+import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema } from './zod'
 import { ZodError }  from 'zod'
 
 
@@ -59,12 +59,14 @@ export function createCaloriesRouter(): Router {
 
     router.post('/save-consumption', async (req, res) => {
         try {
-            
+            const validatedBody = SaveConsumptionInputSchema.parse(req.body);
+            const result = await CaloriesFoodController.saveConsumption(validatedBody);
+            res.status(201).json(result);
         } catch (error) {
             if (error instanceof ZodError) {
                 res.status(400).json({ error: error });
             } else {
-                res.status(500).json({ error: "Internal Server Error" });
+                res.status(500).json({ error });
             }
         }
     })

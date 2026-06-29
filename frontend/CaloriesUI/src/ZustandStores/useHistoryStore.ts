@@ -21,20 +21,13 @@ export interface ConsumoRecord {
 
 interface HistoryStore {
   history: ConsumoRecord[];
-  saveRecord: (record: Omit<ConsumoRecord, "id" | "timestamp">) => void;
+  addRecord: (record: ConsumoRecord) => void;
 }
 
 export const useHistoryStore = create<HistoryStore>()((set) => ({
   history: [],
-  saveRecord: (record) =>
+  addRecord: (record) =>
     set((state) => ({
-      history: [
-        {
-          ...record,
-          id: crypto.randomUUID(),
-          timestamp: new Date().toISOString(),
-        },
-        ...state.history,
-      ],
+      history: [record, ...state.history],
     })),
 }));

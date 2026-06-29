@@ -16,7 +16,7 @@ export function ResultsAction({ onSave, disabled }: ResultsActionProps) {
         size="lg"
         onClick={onSave}
         disabled={disabled}
-        className="h-12 rounded-full px-7 text-base shadow-md gradient-leaf"
+        className="h-12 rounded-full px-7 text-base shadow-md gradient-leaf cursor-pointer"
       >
         <BookmarkPlus className="mr-2 h-5 w-5" />
         {t("record")}

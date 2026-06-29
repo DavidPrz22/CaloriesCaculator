@@ -44,4 +44,23 @@ export type Nutrition = z.infer<typeof NutritionSchema>;
 export type CalculatedItem = z.infer<typeof CalculatedItemSchema>;
 export type CalculateNutrientsResponse = z.infer<typeof CalculateNutrientsResponseSchema>;
 
+export const ConsumoDetalleInputSchema = z.object({
+    comidaId: z.number(),
+    cantidad_consumida: z.number().min(1),
+    calorias_consumida: z.number().min(0),
+    proteinas_consumida: z.number().min(0),
+    carbohidratos_consumida: z.number().min(0),
+    grasas_consumida: z.number().min(0),
+});
+
+export const SaveConsumptionInputSchema = z.object({
+    calorias_consumidas: z.number().min(0),
+    proteinas_consumidas: z.number().min(0),
+    carbohidratos_consumidos: z.number().min(0),
+    grasas_consumidas: z.number().min(0),
+    detalles: z.array(ConsumoDetalleInputSchema).min(1),
+});
+
+export type SaveConsumptionInput = z.infer<typeof SaveConsumptionInputSchema>;
+
 
