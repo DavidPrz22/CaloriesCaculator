@@ -152,7 +152,25 @@ export class CaloriesFoodController {
             }
         });
 
-        return dataConsumo;
+        return {
+            id: dataConsumo.id,
+            calorias_consumidas: dataConsumo.calorias_consumidas,
+            grasas_consumidas: dataConsumo.grasas_consumidas,
+            proteinas_consumidas: dataConsumo.proteinas_consumidas,
+            carbohidratos_consumidos: dataConsumo.carbohidratos_consumidos,
+            timestamp: dataConsumo.timestamp.toISOString(),
+            userId: dataConsumo.userId,
+            detalles: dataConsumo.detalles.map(d => ({
+                id: d.id,
+                comidaId: d.comidaId,
+                cantidad_consumida: d.cantidad_consumida,
+                calorias_consumida: d.calorias_consumida,
+                grasas_consumidas: d.grasas_consumidas,
+                proteinas_consumidas: d.proteinas_consumidas,
+                carbohidratos_consumidos: d.carbohidratos_consumidos,
+                dataConsumoId: d.dataConsumoId,
+            })),
+        };
     }
 
     static async getComidas(page: number = 1, limit: number = 50, search: string = "") {
@@ -188,5 +206,58 @@ export class CaloriesFoodController {
 
     static async deleteComida(id: number) {
         return await prisma.comida.delete({ where: { id } });
+    }
+
+    static async getConsumptions(page: number = 1, limit: number = 50, startDate?: string, endDate?: string) {
+        const userId = 1;
+        const skip = (page - 1) * limit;
+
+        const where: any = { userId };
+        if (startDate || endDate) {
+            where.timestamp = {};
+            if (startDate) where.timestamp.gte = new Date(startDate);
+            if (endDate) where.timestamp.lte = new Date(endDate);
+        }
+
+        const [items, total] = await Promise.all([
+            prisma.dataConsumo.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { timestamp: 'desc' },
+            }),
+            prisma.dataConsumo.count({ where }),
+        ]);
+
+        return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+
+    static async deleteConsumption(id: number) {
+        const userId = 1;
+        return await prisma.dataConsumo.delete({
+            where: { id, userId },
+        });
+    }
+
+    static async getConsumptionDetail(id: number) {
+        const userId = 1;
+        return await prisma.dataConsumo.findUnique({
+            where: { id, userId },
+            include: {
+                detalles: {
+                    include: {
+                        comida: {
+                            select: {
+                                id: true,
+                                FDCID: true,
+                                nameES: true,
+                                nameEN: true,
+                                medidaId: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
     }
 }

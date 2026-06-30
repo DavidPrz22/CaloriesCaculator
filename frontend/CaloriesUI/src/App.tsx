@@ -6,8 +6,8 @@ import { Toaster } from "sonner";
 
 import Home from './pages/home'
 import Foods from './pages/foods'
-import History from './pages/history'
 import Results from './pages/results'
+import Consumption from './pages/consumption'
 import NotFound from './pages/notfound'
 
 
@@ -24,8 +24,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/foods" element={<Foods/>} />
-            <Route path="/history" element={<History/>} />
             <Route path="/results" element={<Results/>} />
+            <Route path="/consumption" element={<Consumption/>} />
             <Route path="*" element={<NotFound/>} />
           </Routes>
         </BrowserRouter>

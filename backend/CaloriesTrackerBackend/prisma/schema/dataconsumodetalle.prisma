@@ -8,5 +8,5 @@ model DataConsumoDetalle {
   carbohidratos_consumidos    Int
   dataConsumoId               Int
   comida                      Comida      @relation(fields: [comidaId], references: [id])
-  dataConsumo                 DataConsumo @relation(fields: [dataConsumoId], references: [id])
+  dataConsumo                 DataConsumo @relation(fields: [dataConsumoId], references: [id], onDelete: Cascade)
 }

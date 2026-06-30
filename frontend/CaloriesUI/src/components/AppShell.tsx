@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router";
-import { Menu, Leaf, Languages, Search, History, Database } from "lucide-react";
+import { Menu, Leaf, Languages, Search, Database, Utensils } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
                 <nav className="flex flex-col gap-1">
                   <NavItem to="/" icon={<Search className="h-4 w-4" />} label={t("home")} onClick={() => setOpen(false)} />
-                  <NavItem to="/history" icon={<History className="h-4 w-4" />} label={t("history")} onClick={() => setOpen(false)} />
+                  <NavItem to="/consumption" icon={<Utensils className="h-4 w-4" />} label={t("consumption")} onClick={() => setOpen(false)} />
                   <NavItem to="/foods" icon={<Database className="h-4 w-4" />} label={t("foodsDb")} onClick={() => setOpen(false)} />
                 </nav>
               </div>

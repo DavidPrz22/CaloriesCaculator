@@ -57,13 +57,34 @@ export async function calculateNutrition(items: FoodArg[]): Promise<CalculateNut
   }
 }
 
-export async function saveConsumption(request: SaveConsumptionRequest): Promise<void> {
+export interface SavedConsumptionResponse {
+  id: number;
+  calorias_consumidas: number;
+  grasas_consumidas: number;
+  proteinas_consumidas: number;
+  carbohidratos_consumidos: number;
+  timestamp: string;
+  userId: number;
+  detalles: Array<{
+    id: number;
+    comidaId: number;
+    cantidad_consumida: number;
+    calorias_consumida: number;
+    grasas_consumidas: number;
+    proteinas_consumidas: number;
+    carbohidratos_consumidos: number;
+    dataConsumoId: number;
+  }>;
+}
+
+export async function saveConsumption(request: SaveConsumptionRequest): Promise<SavedConsumptionResponse> {
   try {
     const validatedRequest = SaveConsumptionRequestSchema.parse(request);
-    await fetchApi<void>("/save-consumption", {
+    const data = await fetchApi<SavedConsumptionResponse>("/save-consumption", {
       method: "POST",
       body: JSON.stringify(validatedRequest),
     });
+    return data;
   } catch (error) {
     console.error("Error saving consumption:", error);
     throw new Error(error instanceof Error ? error.message : "Failed to save consumption", { cause: error });

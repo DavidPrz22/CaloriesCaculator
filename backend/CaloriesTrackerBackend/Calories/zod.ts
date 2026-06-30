@@ -76,3 +76,60 @@ export const CreateComidaSchema = z.object({
 });
 
 export const UpdateComidaSchema = CreateComidaSchema.partial();
+
+export const GetConsumptionsQuerySchema = z.object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(100).default(50),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+});
+
+export type GetConsumptionsQuery = z.infer<typeof GetConsumptionsQuerySchema>;
+
+export const ConsumoDetalleComidaSchema = z.object({
+    id: z.number(),
+    FDCID: z.number(),
+    nameES: z.string(),
+    nameEN: z.string(),
+    medidaId: z.number(),
+});
+
+export const ConsumoDetalleResponseSchema = z.object({
+    id: z.number(),
+    comidaId: z.number(),
+    cantidad_consumida: z.number(),
+    calorias_consumida: z.number(),
+    grasas_consumidas: z.number(),
+    proteinas_consumidas: z.number(),
+    carbohidratos_consumidos: z.number(),
+    dataConsumoId: z.number(),
+    comida: ConsumoDetalleComidaSchema.optional(),
+});
+
+export const ConsumptionItemSchema = z.object({
+    id: z.number(),
+    calorias_consumidas: z.number(),
+    grasas_consumidas: z.number(),
+    proteinas_consumidas: z.number(),
+    carbohidratos_consumidos: z.number(),
+    timestamp: z.string().or(z.date()),
+    userId: z.number(),
+});
+
+export const ConsumptionsResponseSchema = z.object({
+    items: z.array(ConsumptionItemSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+});
+
+export type ConsumptionItem = z.infer<typeof ConsumptionItemSchema>;
+export type ConsumoDetalleResponse = z.infer<typeof ConsumoDetalleResponseSchema>;
+export type ConsumptionsResponse = z.infer<typeof ConsumptionsResponseSchema>;
+
+export const ConsumptionDetailResponseSchema = ConsumptionItemSchema.extend({
+    detalles: z.array(ConsumoDetalleResponseSchema),
+});
+
+export type ConsumptionDetailResponse = z.infer<typeof ConsumptionDetailResponseSchema>;

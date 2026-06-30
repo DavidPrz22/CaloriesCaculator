@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { CaloriesFoodController } from "./controllers";
-import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema, CreateComidaSchema, UpdateComidaSchema } from './zod'
+import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema, CreateComidaSchema, UpdateComidaSchema, GetConsumptionsQuerySchema } from './zod'
 import { ZodError }  from 'zod'
 
 
@@ -120,6 +120,48 @@ export function createCaloriesRouter(): Router {
             if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
             await CaloriesFoodController.deleteComida(id);
             res.status(204).send();
+        } catch (error) {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+
+    router.get('/consumptions', async (req, res) => {
+        try {
+            const validatedQuery = GetConsumptionsQuerySchema.parse(req.query);
+            const result = await CaloriesFoodController.getConsumptions(
+                validatedQuery.page,
+                validatedQuery.limit,
+                validatedQuery.startDate,
+                validatedQuery.endDate,
+            );
+            res.status(200).json(result);
+        } catch (error) {
+            if (error instanceof ZodError) {
+                res.status(400).json({ error: error });
+            } else {
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        }
+    });
+
+    router.delete('/consumptions/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+            await CaloriesFoodController.deleteConsumption(id);
+            res.status(204).send();
+        } catch (error) {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+
+    router.get('/consumptions/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+            const result = await CaloriesFoodController.getConsumptionDetail(id);
+            if (!result) return res.status(404).json({ error: "Not found" });
+            res.status(200).json(result);
         } catch (error) {
             res.status(500).json({ error: "Internal Server Error" });
         }
