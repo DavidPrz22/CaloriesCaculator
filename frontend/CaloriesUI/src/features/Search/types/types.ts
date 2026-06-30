@@ -49,3 +49,7 @@ export type NutrionData = {
   fat: string
 }
 
+export type resultsParams = {
+  id: string[] | null,
+  qty: string[] | null
+}
