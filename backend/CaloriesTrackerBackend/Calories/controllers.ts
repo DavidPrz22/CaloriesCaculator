@@ -154,4 +154,39 @@ export class CaloriesFoodController {
 
         return dataConsumo;
     }
+
+    static async getComidas(page: number = 1, limit: number = 50, search: string = "") {
+        const skip = (page - 1) * limit;
+        const where = search ? {
+            OR: [
+                { nameES: { contains: search, mode: 'insensitive' as const } },
+                { nameEN: { contains: search, mode: 'insensitive' as const } }
+            ]
+        } : {};
+
+        const [items, total] = await Promise.all([
+            prisma.comida.findMany({
+                where,
+                skip,
+                take: limit,
+                include: { categoria: true, medida: true },
+                orderBy: { id: 'desc' }
+            }),
+            prisma.comida.count({ where })
+        ]);
+
+        return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+
+    static async createComida(data: any) {
+        return await prisma.comida.create({ data });
+    }
+
+    static async updateComida(id: number, data: any) {
+        return await prisma.comida.update({ where: { id }, data });
+    }
+
+    static async deleteComida(id: number) {
+        return await prisma.comida.delete({ where: { id } });
+    }
 }

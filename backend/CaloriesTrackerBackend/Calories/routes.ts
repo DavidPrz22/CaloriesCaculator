@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { CaloriesFoodController } from "./controllers";
-import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema } from './zod'
+import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema, CreateComidaSchema, UpdateComidaSchema } from './zod'
 import { ZodError }  from 'zod'
 
 
@@ -70,5 +70,60 @@ export function createCaloriesRouter(): Router {
             }
         }
     })
+
+
+    router.get('/comida', async (req, res) => {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 50;
+            const search = (req.query.search as string) || "";
+            const result = await CaloriesFoodController.getComidas(page, limit, search);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+
+    router.post('/comida', async (req, res) => {
+        try {
+            const validatedBody = CreateComidaSchema.parse(req.body);
+            const result = await CaloriesFoodController.createComida(validatedBody);
+            res.status(201).json(result);
+        } catch (error) {
+            if (error instanceof ZodError) {
+                res.status(400).json({ error: error });
+            } else {
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        }
+    });
+
+    router.put('/comida/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+            const validatedBody = UpdateComidaSchema.parse(req.body);
+            const result = await CaloriesFoodController.updateComida(id, validatedBody);
+            res.status(200).json(result);
+        } catch (error) {
+            if (error instanceof ZodError) {
+                res.status(400).json({ error: error });
+            } else {
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        }
+    });
+
+    router.delete('/comida/:id', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+            await CaloriesFoodController.deleteComida(id);
+            res.status(204).send();
+        } catch (error) {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+
     return router;
 }

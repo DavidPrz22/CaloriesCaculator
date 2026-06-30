@@ -18,6 +18,7 @@ const dict = {
   noResults:      { en: "No matches yet — keep typing.", es: "Sin coincidencias — sigue escribiendo." },
   startTyping:    { en: "Start typing to find foods.", es: "Empieza a escribir para buscar alimentos." },
   add:            { en: "Add", es: "Agregar" },
+  create:         { en: "Create New", es: "Crear Nuevo" },
   yourPlate:      { en: "Your plate", es: "Tu plato" },
   emptyPlate:     { en: "Selected foods will appear here.", es: "Los alimentos seleccionados aparecerán aquí." },
   amount:         { en: "Amount", es: "Cantidad" },

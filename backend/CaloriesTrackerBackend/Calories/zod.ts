@@ -63,4 +63,16 @@ export const SaveConsumptionInputSchema = z.object({
 
 export type SaveConsumptionInput = z.infer<typeof SaveConsumptionInputSchema>;
 
+export const CreateComidaSchema = z.object({
+    FDCID: z.number(),
+    nameES: z.string().min(1),
+    nameEN: z.string().min(1),
+    categoriaId: z.number(),
+    medidaId: z.number(),
+    calories: z.number().nullable().optional(),
+    protein: z.number().nullable().optional(),
+    carbs: z.number().nullable().optional(),
+    fat: z.number().nullable().optional(),
+});
 
+export const UpdateComidaSchema = CreateComidaSchema.partial();

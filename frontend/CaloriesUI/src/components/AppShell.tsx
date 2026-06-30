@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import { Menu, Leaf, Languages, Search, History, Database } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -76,15 +76,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 function NavItem({ to, icon, label, onClick }: { to: string; icon: ReactNode; label: string; onClick: () => void }) {
   return (
-    <Link
+    <NavLink
       to={to}
       onClick={onClick}
-      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition hover:bg-accent"
-      activeProps={{ className: "bg-accent text-accent-foreground" }}
-      activeOptions={{ exact: true }}
+      end={true}
+      className={({ isActive }) =>
+        `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-accent ${
+          isActive ? "bg-accent text-accent-foreground" : "text-foreground"
+        }`
+      }
     >
       <span className="text-primary">{icon}</span>
       {label}
-    </Link>
+    </NavLink>
   );
 }
