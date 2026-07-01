@@ -4,8 +4,6 @@ import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSche
 import { ZodError }  from 'zod'
 
 
-export const CaloriesRouter: Router = Router();
-
 export function createCaloriesRouter(): Router {
     const router = Router();
 
@@ -59,14 +57,15 @@ export function createCaloriesRouter(): Router {
 
     router.post('/save-consumption', async (req, res) => {
         try {
+            const userId = req.session.user!.id; // Assuming user is stored in session
             const validatedBody = SaveConsumptionInputSchema.parse(req.body);
-            const result = await CaloriesFoodController.saveConsumption(validatedBody);
+            const result = await CaloriesFoodController.saveConsumption(validatedBody, userId);
             res.status(201).json(result);
         } catch (error) {
             if (error instanceof ZodError) {
                 res.status(400).json({ error: error });
             } else {
-                res.status(500).json({ error });
+                res.status(500).json({ error: "Internal Server Error" });
             }
         }
     })

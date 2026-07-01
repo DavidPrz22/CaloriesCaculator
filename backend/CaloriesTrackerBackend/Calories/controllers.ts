@@ -112,8 +112,7 @@ export class CaloriesFoodController {
         return { items, totals };
     }
 
-    static async saveConsumption(input: SaveConsumptionInput) {
-        const userId = 1;
+    static async saveConsumption(input: SaveConsumptionInput, userId: number) {
 
         const fdcIds = input.detalles.map(d => d.comidaId);
         const comidas = await prisma.comida.findMany({

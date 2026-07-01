@@ -1,12 +1,16 @@
 import express from 'express'
 import cors from "cors";
 
+import { UserService } from '../Users/services/services';
 import { createCaloriesRouter } from '@/Calories/routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(UserService.AddSession()); // Add session middleware
+app.use(UserService.validateSession); // Add session validation middleware
 
 app.use(cors({
     origin: [
