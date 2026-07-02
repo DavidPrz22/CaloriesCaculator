@@ -9,8 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(UserService.AddSession()); // Add session middleware
-app.use(UserService.validateSession); // Add session validation middleware
+    // Removed session middleware
+    // Note: If you mount user routes like /login or /signup, ensure they are mounted BEFORE this middleware
+    // or apply validateJWT only to protected routes instead of globally!
+app.use(UserService.validateJWT); // Add JWT validation middleware
+
 
 app.use(cors({
     origin: [

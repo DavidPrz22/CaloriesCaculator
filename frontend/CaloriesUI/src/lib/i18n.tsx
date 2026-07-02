@@ -68,6 +68,17 @@ const dict = {
   next:           { en: "Next", es: "Siguiente" },
   macros:         { en: "Macros", es: "Macros" },
   basedOn:        { en: "Values based on", es: "Valores basados en" },
+  login:          { en: "Login", es: "Iniciar sesión" },
+  signup:         { en: "Sign up", es: "Registrarse" },
+  username:       { en: "Username", es: "Usuario" },
+  password:       { en: "Password", es: "Contraseña" },
+  logout:         { en: "Logout", es: "Cerrar sesión" },
+  noAccount:      { en: "Don't have an account?", es: "¿No tienes cuenta?" },
+  hasAccount:     { en: "Already have an account?", es: "¿Ya tienes cuenta?" },
+  loginDesc:      { en: "Enter your credentials to continue", es: "Ingresa tus credenciales para continuar" },
+  signupDesc:     { en: "Create an account to get started", es: "Crea una cuenta para comenzar" },
+  loggingIn:      { en: "Logging in...", es: "Iniciando sesión..." },
+  signingUp:      { en: "Creating account...", es: "Creando cuenta..." },
 } satisfies Dict;
 
 export type DictKey = keyof typeof dict;

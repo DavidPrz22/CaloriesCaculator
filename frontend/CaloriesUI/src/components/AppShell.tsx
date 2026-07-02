@@ -1,13 +1,25 @@
-import { Link, NavLink } from "react-router";
-import { Menu, Leaf, Languages, Search, Database, Utensils } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router";
+import { Menu, Leaf, Languages, Search, Database, Utensils, LogIn, LogOut, User } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { useProfile } from "@/features/UserAuth";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n();
   const [open, setOpen] = useState(false);
+  const { data: user } = useProfile();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/users/logout", { method: "POST", credentials: "include" });
+      window.location.href = "/login";
+    } catch {
+      window.location.href = "/login";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background bg-grain">
@@ -21,6 +33,27 @@ export function AppShell({ children }: { children: ReactNode }) {
               {t("appName")}
             </span>
           </Link>
+
+          <div className="flex items-center gap-2">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  <User className="h-4 w-4 text-primary" />
+                  {user.username}
+                </span>
+                <Button variant="ghost" size="icon" onClick={handleLogout} aria-label={t("logout")}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">
+                  <LogIn className="mr-1.5 h-4 w-4" />
+                  {t("login")}
+                </Link>
+              </Button>
+            )}
+          </div>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -63,6 +96,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NavItem to="/consumption" icon={<Utensils className="h-4 w-4" />} label={t("consumption")} onClick={() => setOpen(false)} />
                   <NavItem to="/foods" icon={<Database className="h-4 w-4" />} label={t("foodsDb")} onClick={() => setOpen(false)} />
                 </nav>
+
+                <div className="border-t border-border pt-4">
+                  {user ? (
+                    <button
+                      onClick={() => { setOpen(false); handleLogout(); }}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition hover:bg-accent"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      {t("logout")}
+                    </button>
+                  ) : (
+                    <NavItem to="/login" icon={<LogIn className="h-4 w-4" />} label={t("login")} onClick={() => setOpen(false)} />
+                  )}
+                </div>
               </div>
             </SheetContent>
           </Sheet>

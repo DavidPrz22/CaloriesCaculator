@@ -1,4 +1,5 @@
 import { Router } from "express";
+/// <reference path="../../nodeApp/types/express.d.ts" />
 import { CaloriesFoodController } from "./controllers";
 import { SearchFoodQuerySchema, calculateNutrientsArgs, SaveConsumptionInputSchema, CreateComidaSchema, UpdateComidaSchema, GetConsumptionsQuerySchema } from './zod'
 import { ZodError }  from 'zod'
@@ -57,7 +58,7 @@ export function createCaloriesRouter(): Router {
 
     router.post('/save-consumption', async (req, res) => {
         try {
-            const userId = req.session.user!.id; // Assuming user is stored in session
+            const userId = req.user!.id; // User is attached to req by JWT middleware
             const validatedBody = SaveConsumptionInputSchema.parse(req.body);
             const result = await CaloriesFoodController.saveConsumption(validatedBody, userId);
             res.status(201).json(result);

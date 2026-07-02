@@ -1,4 +1,5 @@
 import Router, { type Router as RouterType } from 'express';
+/// <reference path="../nodeApp/types/express.d.ts" />
 import { UserSchema } from './zod';
 import { UserController } from './controller';  
 
@@ -6,15 +7,40 @@ export function getuserRoutes () : RouterType {
     const userRoutes = Router();
 
     userRoutes.get('/profile', async (req, res) => {
-        const user = req.session.user;
-        const userProfile = await UserController.getUserProfile(user!);
-        if (!userProfile) {
+        const user = req.user;
+        if (!user) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
+        const userProfile = await UserController.getUserProfile(user);
         res.json(userProfile);
     }) 
 
-    userRoutes.get('/login', async (req, res) => {
+    userRoutes.post('/refresh-token', async (req, res) => {
+        const cookieHeader = req.headers.cookie;
+        const currentRefreshToken = cookieHeader?.split('; ').find(row => row.startsWith('refreshToken='))?.split('=')[1];
+        
+        if (!currentRefreshToken) {
+            return res.status(401).json({ error: 'Unauthorized: No refresh token provided' });
+        }
+
+        const user = await UserController.getUserByRefreshToken(currentRefreshToken);
+        if (!user) {
+            return res.status(401).json({ error: 'Unauthorized: Invalid refresh token' });
+        }
+
+        const { access, refresh } = await UserController.generateTokens({ id: user.id, username: user.username });
+        await UserController.updateRefreshTokenInDB(user.id, refresh);
+        
+        res.cookie('refreshToken', refresh, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        res.json({ message: 'Token refreshed successfully', user: user, accessToken: access });
+    })
+
+    userRoutes.post('/login', async (req, res) => {
         const { username, password } = req.body;
         const validationResult = UserSchema.safeParse({ username, password });
         if (!validationResult.success) {
@@ -23,12 +49,19 @@ export function getuserRoutes () : RouterType {
 
         // Proceed with user login logic
         const user = await UserController.loginUser({ username, password });
-        req.session.user = user; // Store user info in session
-        res.redirect('/profile');
-    }) 
+        const { access, refresh } = await UserController.generateTokens({ id: user.id, username: user.username });
+    
+        await UserController.updateRefreshTokenInDB(user.id, refresh);
 
+        res.cookie('refreshToken', refresh, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS in production
+            sameSite: 'strict',
+        });
+        res.json({ message: 'Login successful', user, accessToken: access });
+    })
 
-    userRoutes.get('/signup', async (req, res) => {
+    userRoutes.post('/signup', async (req, res) => {
         const { username, password } = req.body;
         const validationResult = UserSchema.safeParse({ username, password });
 
@@ -38,13 +71,17 @@ export function getuserRoutes () : RouterType {
 
         // Proceed with user registration logic
         const user = await UserController.registerUser({ username, password });
+        const { access, refresh } = await UserController.generateTokens({ id: user.id, username: user.username });
+        
+        await UserController.updateRefreshTokenInDB(user.id, refresh);
 
-        req.session.user = user; // Store user info in session
-        res.redirect('/profile');
-    
-        return res.status(201).json({ message: 'User registered successfully', user });
+        res.cookie('refreshToken', refresh, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS in production
+            sameSite: 'strict',
+        });
+        return res.status(201).json({ message: 'User registered successfully', user, accessToken: access });
     }) 
-
 
     return userRoutes;
 }

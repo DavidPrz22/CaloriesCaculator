@@ -1,5 +1,8 @@
 {
 	"dependencies": {
 		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.19"
 	}
 }
