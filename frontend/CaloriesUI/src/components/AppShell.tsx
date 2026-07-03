@@ -4,7 +4,8 @@ import { type ReactNode, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { useProfile } from "@/features/UserAuth";
+import { useProfile, useAuthStore } from "@/features/UserAuth";
+import { apiClient } from "@/api";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n();
@@ -12,12 +13,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: user } = useProfile();
   const navigate = useNavigate();
 
+  const { clearAuth } = useAuthStore();
   const handleLogout = async () => {
     try {
-      await fetch("/api/users/logout", { method: "POST", credentials: "include" });
-      window.location.href = "/login";
-    } catch {
-      window.location.href = "/login";
+      await apiClient.post("/api/users/logout");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      clearAuth();
+      navigate("/login", { replace: true });
     }
   };
 

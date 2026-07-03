@@ -1,41 +1,24 @@
-import type { User } from "../types/types";
+import { apiClient } from "@/api";
+import { apiRequest } from "@/lib/api-error";
+import type { User, LoginResponse, RefreshResponse } from "../types/types";
 import type { UserAuthSchemaType } from "../schemas/schemas";
 
-const API_BASE = "/api/users";
-
-async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    ...options,
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: response.statusText }));
-    throw new Error(error.error || `API Error: ${response.status}`);
-  }
-
-  return response.json() as Promise<T>;
+export async function login(data: UserAuthSchemaType): Promise<LoginResponse> {
+  return apiRequest(apiClient.post<LoginResponse>("/api/users/login", data), "login");
 }
 
-export async function login(data: UserAuthSchemaType): Promise<{ user: User }> {
-  return fetchApi<{ user: User }>("/login", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function signup(data: UserAuthSchemaType): Promise<{ user: User }> {
-  return fetchApi<{ user: User }>("/signup", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function signup(data: UserAuthSchemaType): Promise<LoginResponse> {
+  return apiRequest(apiClient.post<LoginResponse>("/api/users/signup", data), "signup");
 }
 
 export async function getProfile(): Promise<User> {
-  return fetchApi<User>("/profile");
+  return apiRequest(apiClient.get<User>("/api/users/profile"), "getProfile");
 }
 
 export async function logout(): Promise<void> {
-  return fetchApi<void>("/logout", { method: "POST" });
+  return apiRequest(apiClient.post("/api/users/logout"), "logout");
+}
+
+export async function refreshAccessToken(): Promise<RefreshResponse> {
+  return apiRequest(apiClient.post<RefreshResponse>("/api/users/refresh-token"), "refreshAccessToken");
 }

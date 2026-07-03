@@ -1,6 +1,6 @@
+import { apiClient } from "@/api";
+import { apiRequest } from "@/lib/api-error";
 import type { ConsumptionsApiResponse, ConsumptionDetailApiResponse } from "../types/types";
-
-const API_BASE_URL = "http://localhost:3000/api/calories";
 
 export async function getConsumptions(
   page: number,
@@ -15,20 +15,19 @@ export async function getConsumptions(
   if (startDate) query.set("startDate", startDate);
   if (endDate) query.set("endDate", endDate);
 
-  const res = await fetch(`${API_BASE_URL}/consumptions?${query}`);
-  if (!res.ok) throw new Error("Failed to fetch consumption records");
-  return res.json();
+  return apiRequest(
+    apiClient.get<ConsumptionsApiResponse>(`/api/calories/consumptions?${query}`),
+    "getConsumptions"
+  );
 }
 
 export async function deleteConsumption(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/consumptions/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete consumption record");
+  return apiRequest(apiClient.delete(`/api/calories/consumptions/${id}`), "deleteConsumption");
 }
 
 export async function getConsumptionDetail(id: number): Promise<ConsumptionDetailApiResponse> {
-  const res = await fetch(`${API_BASE_URL}/consumptions/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch consumption detail");
-  return res.json();
+  return apiRequest(
+    apiClient.get<ConsumptionDetailApiResponse>(`/api/calories/consumptions/${id}`),
+    "getConsumptionDetail"
+  );
 }

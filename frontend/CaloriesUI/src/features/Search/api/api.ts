@@ -1,26 +1,23 @@
-import { fetchApi } from "../utils/api";
+import { apiClient } from "@/api";
+import { apiRequest } from "@/lib/api-error";
 import { CategoriesResponseSchema, UnitsResponseSchema, SearchFoodResponseSchema, CalculateNutrientsResponseSchema, FoodArgSchema, SaveConsumptionRequestSchema } from "../schemas/schemas";
 import type { Categoria, Medida, Comida, BackendLang } from "../types/types";
 import type { FoodArg, CalculateNutrientsResponse, SaveConsumptionRequest } from "../schemas/schemas";
 
 export async function fetchCategories(): Promise<Categoria[]> {
-  try {
-    const data = await fetchApi<{ categories: Categoria[] }>("/categories");
-    return CategoriesResponseSchema.parse(data).categories;
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to fetch categories", { cause: error });
-  }
+  const data = await apiRequest(
+    apiClient.get<{ categories: Categoria[] }>("/categories"),
+    "fetchCategories"
+  );
+  return CategoriesResponseSchema.parse(data).categories;
 }
 
 export async function fetchUnits(): Promise<Medida[]> {
-  try {
-    const data = await fetchApi<{ units: Medida[] }>("/units");
-    return UnitsResponseSchema.parse(data).units;
-  } catch (error) {
-    console.error("Error fetching units:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to fetch units", { cause: error });
-  }
+  const data = await apiRequest(
+    apiClient.get<{ units: Medida[] }>("/units"),
+    "fetchUnits"
+  );
+  return UnitsResponseSchema.parse(data).units;
 }
 
 export async function searchFood(params: {
@@ -28,33 +25,26 @@ export async function searchFood(params: {
   categoriaId: number;
   lang: BackendLang;
 }): Promise<Comida[]> {
-  try {
-    const { query, categoriaId, lang } = params;
-    const searchParams = new URLSearchParams({
-      query,
-      lang,
-      categoriaId: String(categoriaId),
-    });
-    const data = await fetchApi<{ foods: Comida[] }>(`/search-food?${searchParams}`);
-    return SearchFoodResponseSchema.parse(data).foods;
-  } catch (error) {
-    console.error("Error searching food:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to search food", { cause: error });
-  }
+  const { query, categoriaId, lang } = params;
+  const searchParams = new URLSearchParams({
+    query,
+    lang,
+    categoriaId: String(categoriaId),
+  });
+  const data = await apiRequest(
+    apiClient.get<{ foods: Comida[] }>(`/search-food?${searchParams}`),
+    "searchFood"
+  );
+  return SearchFoodResponseSchema.parse(data).foods;
 }
 
 export async function calculateNutrition(items: FoodArg[]): Promise<CalculateNutrientsResponse> {
-  try {
-    const validatedItems = FoodArgSchema.array().parse(items);
-    const data = await fetchApi<CalculateNutrientsResponse>("/calculate", {
-      method: "POST",
-      body: JSON.stringify(validatedItems.length > 0 ? validatedItems : []),
-    });
-    return CalculateNutrientsResponseSchema.parse(data);
-  } catch (error) {
-    console.error("Error calculating nutrition:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to calculate nutrition", { cause: error });
-  }
+  const validatedItems = FoodArgSchema.array().parse(items);
+  const data = await apiRequest(
+    apiClient.post<CalculateNutrientsResponse>("/calculate", validatedItems.length > 0 ? validatedItems : []),
+    "calculateNutrition"
+  );
+  return CalculateNutrientsResponseSchema.parse(data);
 }
 
 export interface SavedConsumptionResponse {
@@ -78,17 +68,10 @@ export interface SavedConsumptionResponse {
 }
 
 export async function saveConsumption(request: SaveConsumptionRequest): Promise<SavedConsumptionResponse> {
-  try {
-    const validatedRequest = SaveConsumptionRequestSchema.parse(request);
-    const data = await fetchApi<SavedConsumptionResponse>("/save-consumption", {
-      method: "POST",
-      body: JSON.stringify(validatedRequest),
-    });
-    return data;
-  } catch (error) {
-    console.error("Error saving consumption:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to save consumption", { cause: error });
-  }
+  const validatedRequest = SaveConsumptionRequestSchema.parse(request);
+  const data = await apiRequest(
+    apiClient.post<SavedConsumptionResponse>("/save-consumption", validatedRequest),
+    "saveConsumption"
+  );
+  return data;
 }
-
-

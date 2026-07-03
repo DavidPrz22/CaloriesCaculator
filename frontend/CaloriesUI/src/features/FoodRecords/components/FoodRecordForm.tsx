@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useCreateComida, useUpdateComida } from '../hooks/queries/queries';
 import type { Comida, Categoria, Medida } from '../types';
+import { apiClient } from '@/api';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -28,8 +30,20 @@ export function FoodRecordForm({ isOpen, onClose, initialData }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      fetch('http://localhost:3000/api/calories/categories').then(r => r.json()).then(d => setCategories(d.categories));
-      fetch('http://localhost:3000/api/calories/units').then(r => r.json()).then(d => setMeasures(d.units));
+      const fetchData = async () => {
+        try {
+          const [categoriesRes, measuresRes] = await Promise.all([
+            apiClient.get('/api/calories/categories'),
+            apiClient.get('/api/calories/units')
+          ]);
+          setCategories(categoriesRes.data.categories);
+          setMeasures(measuresRes.data.units);
+        } catch (error) {
+          console.error('Failed to fetch categories or units:', error);
+          toast.error('Failed to load categories or units');
+        }
+      };
+      fetchData();
     }
   }, [isOpen]);
 

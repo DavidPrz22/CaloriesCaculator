@@ -1,0 +1,127 @@
+import { create } from "zustand";
+import { jwtDecode } from "jwt-decode";
+import { apiClient } from "@/api";
+import type { User, JwtPayload, LoginResponse, RefreshResponse } from "../types/types";
+import type { UserAuthSchemaType } from "../schemas/schemas";
+import type { AxiosError, InternalAxiosRequestConfig } from "axios";
+
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+interface AuthState {
+  user: User | null;
+  accessToken: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: UserAuthSchemaType) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshToken: () => Promise<string | null>;
+  updateUser: (user: User) => void;
+  setAuth: (user: User, accessToken: string) => void;
+  initializeAuth: () => Promise<void>;
+  clearAuth: () => void;
+}
+
+const checkTokenExpiry = (token: string | null): boolean => {
+  if (!token) return false;
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    return decoded.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+};
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  accessToken: null,
+  isLoading: true,
+  isAuthenticated: false,
+
+  clearAuth: () => {
+    set({ user: null, accessToken: null, isAuthenticated: false });
+  },
+
+  updateUser: (user: User) => {
+    set({ user });
+  },
+
+  setAuth: (user: User, accessToken: string) => {
+    set({ user, accessToken, isAuthenticated: checkTokenExpiry(accessToken) });
+  },
+
+  initializeAuth: async () => {
+    try {
+      await get().refreshToken();
+    } catch {
+      set({ user: null, accessToken: null, isAuthenticated: false });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  login: async (credentials: UserAuthSchemaType) => {
+    const response = await apiClient.post<LoginResponse>("/api/users/login", credentials);
+    const { user, accessToken } = response.data;
+    set({ user, accessToken, isAuthenticated: checkTokenExpiry(accessToken) });
+  },
+
+  logout: async () => {
+    try {
+      await apiClient.post("/api/users/logout");
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    }
+    get().clearAuth();
+  },
+
+  refreshToken: async (): Promise<string | null> => {
+    try {
+      const response = await apiClient.post<RefreshResponse>("/api/users/refresh-token");
+      const { user, accessToken: newAccessToken } = response.data;
+      set({ user, accessToken: newAccessToken, isAuthenticated: checkTokenExpiry(newAccessToken) });
+      return newAccessToken;
+    } catch (error) {
+      console.error("Token refresh failed:", (error as AxiosError).response?.data);
+      get().clearAuth();
+      return null;
+    }
+  },
+}));
+
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config: CustomAxiosRequestConfig) => {
+    const { accessToken } = useAuthStore.getState();
+    if (accessToken && !config._retry) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config as CustomAxiosRequestConfig;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== "/api/users/refresh-token"
+    ) {
+      originalRequest._retry = true;
+
+      const newToken = await useAuthStore.getState().refreshToken();
+      if (newToken) {
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return apiClient(originalRequest);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
